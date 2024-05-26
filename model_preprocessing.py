@@ -27,6 +27,8 @@ def extract_scaled(df: pd.DataFrame, arr: np.ndarray):
 
 if __name__ == "__main__":
 
+    print("2. model_preprocessing.py\n")
+
     df_train = pd.read_csv('data/train/train.csv')
     df_test = pd.read_csv('data/test/test.csv')
 
@@ -47,7 +49,7 @@ if __name__ == "__main__":
     df_test = extract_scaled(df_test, scaled_X_test.T)
     df_train = extract_scaled(df_train, scaled_X_train.T)
 
-    df_train.to_csv('data/train/train_scaled.csv')
-    df_test.to_csv('data/test/test_scaled.csv')
+    df_train.to_csv('data/train/train_scaled.csv', index=False)
+    df_test.to_csv('data/test/test_scaled.csv', index=False)
     df_train.info()
     df_test.info()
