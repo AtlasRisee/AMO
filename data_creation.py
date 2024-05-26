@@ -6,6 +6,8 @@ from sklearn.model_selection import train_test_split
 
 if __name__ == "__main__":
 
+    print("1. data_creation.py\n")
+
     # Generate data on the amount of electricity consumed every hour during the day
     num_hours = 24
     days = 365
