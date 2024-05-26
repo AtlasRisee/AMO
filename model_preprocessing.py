@@ -24,6 +24,7 @@ def extract_scaled(df: pd.DataFrame, arr: np.ndarray):
     df['second'] = arr[5]
     return df.drop('date', axis=1)
 
+
 if __name__ == "__main__":
 
     df_train = pd.read_csv('data/train/train.csv')
