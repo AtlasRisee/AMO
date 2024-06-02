@@ -1,55 +1,50 @@
 import numpy as np
 import pandas as pd
+import os
 from sklearn.preprocessing import StandardScaler
 
+# Constants
+DATE_COMPONENTS = ['year', 'month', 'day', 'hour', 'minute', 'second']
 
-def extract_date(df: pd.DataFrame):
-    # Extract year, month, day, hour, minute, and second from the 'date' column
-    df['year'] = df['date'].dt.year
-    df['month'] = df['date'].dt.month
-    df['day'] = df['date'].dt.day
-    df['hour'] = df['date'].dt.hour
-    df['minute'] = df['date'].dt.minute
-    df['second'] = df['date'].dt.second
+def read_data(file_path):
+    if not os.path.exists(file_path):
+        raise FileNotFoundError(f"File {file_path} does not exist.")
+    return pd.read_csv(file_path)
+
+def extract_date_components(df):
+    df[DATE_COMPONENTS] = df['date'].dt.to_period('S').dt.components
     return df.drop('date', axis=1)
 
+def scale_data(df, scaler):
+    return scaler.fit_transform(df)
 
-def extract_scaled(df: pd.DataFrame, arr: np.ndarray):
-    # Extract year, month, day, hour, minute, and second from the 'date' column
-    df['year'] = arr[0]
-    df['month'] = arr[1]
-    df['day'] = arr[2]
-    df['hour'] = arr[3]
-    df['minute'] = arr[4]
-    df['second'] = arr[5]
-    return df.drop('date', axis=1)
-
+def save_data(df, file_path):
+    df.to_csv(file_path, index=False)
 
 if __name__ == "__main__":
-
     print("2. model_preprocessing.py\n")
 
-    df_train = pd.read_csv('data/train/train.csv')
-    df_test = pd.read_csv('data/test/test.csv')
+    df_train = read_data('data/train/train.csv')
+    df_test = read_data('data/test/test.csv')
 
     df_test['date'] = pd.to_datetime(df_test['date'])
     df_train['date'] = pd.to_datetime(df_train['date'])
 
-    # Extract year, month, day, hour, minute, and second from the 'date' column
-    X_test = extract_date(df_test)
-    X_train = extract_date(df_train)
+    X_train = extract_date_components(df_train)
+    X_test = extract_date_components(df_test)
 
     X_train = X_train.drop('energy_consumption', axis=1)
     X_test = X_test.drop('energy_consumption', axis=1)
 
     scaler = StandardScaler()
-    scaled_X_train = scaler.fit_transform(X_train)
+    scaled_X_train = scale_data(X_train, scaler)
     scaled_X_test = scaler.transform(X_test)
 
-    df_test = extract_scaled(df_test, scaled_X_test.T)
-    df_train = extract_scaled(df_train, scaled_X_train.T)
+    df_train[DATE_COMPONENTS] = scaled_X_train
+    df_test[DATE_COMPONENTS] = scaled_X_test
 
-    df_train.to_csv('data/train/train_scaled.csv', index=False)
-    df_test.to_csv('data/test/test_scaled.csv', index=False)
+    save_data(df_train, 'data/train/train_scaled.csv')
+    save_data(df_test, 'data/test/test_scaled.csv')
+
     df_train.info()
     df_test.info()
